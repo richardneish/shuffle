@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Shuffle letters</title>
+    <link rel="stylesheet" href="lib/jquery-ui.css" />
+    <script src="lib/jquery-1.10.2.min.js"></script>
+    <script src="lib/jquery-ui.js"></script>
+    <script src="lib/jquery.ui.touch-punch.min.js"></script>
+    <style>
+        #shuffle { list-style-type: none; margin: 0; padding: 0; width: 450px; }
+        #shuffle li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; }
+    </style>
+    <script>
+        function knuth_shuffle(a) {
+            var arr = new Array(a.length)
+            for (var i = 0; i < a.length; i++) {
+                arr[i] = a[i]
+            }
+            var n = arr.length,
+                    r,
+                    temp;
+            while (n > 1) {
+                r = Math.floor(n * Math.random());
+                n -= 1;
+                temp = arr[n];
+                arr[n] = arr[r];
+                arr[r] = temp;
+            }
+            return arr.join('');
+        }
+
+        $(function() {
+            var input = document.querySelector("#input");
+            var shuffle = document.querySelector("#shuffle");
+            input.onkeyup = function(event) {
+               // Update the shuffle tiles.
+                var s = event.target.value;
+                // Remove all current letters from the shuffle.
+                while (shuffle.firstChild) {
+                    shuffle.removeChild(shuffle.firstChild);
+                }
+
+                // Add the letters of the current string.
+                for (var i = 0; i < s.length; i++) {
+                    var e = document.createElement("li");
+                    e.setAttribute("class", "ui-state-default");
+                    e.appendChild(document.createTextNode(s[i]));
+                    shuffle.appendChild(e);
+                }
+                $("#shuffle").sortable({
+                    update: function(event, ui) {
+                        // When the user sorts the letters, reflect the new order in the input element.
+                        var liList = document.querySelectorAll('#shuffle li');
+                        var newString = '';
+                        for (var i = 0; i < liList.length; ++i) {
+                            newString += liList[i].textContent;
+                        }
+                        input.value = newString;
+                    }
+                });
+                $("#shuffle").disableSelection();
+            };
+            document.querySelector("#doShuffle").onclick = function(event) {
+                input.value = knuth_shuffle(input.value);
+                input.onkeyup({target: input});
+            }
+        });
+    </script>
+</head>
+<body>
+<input id="input" type="text" value=""/>
+<button id="doShuffle">Shuffle</button>
+<ul id="shuffle"></ul>
+</body>
+</html>
