@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" manifest="offline.manifest">
 <head>
     <meta charset="utf-8" />
     <title>Shuffle letters</title>
-    <link rel="stylesheet" href="lib/jquery-ui.css" />
-    <script src="lib/jquery-1.10.2.min.js"></script>
-    <script src="lib/jquery-ui.js"></script>
-    <script src="lib/jquery.ui.touch-punch.min.js"></script>
+    <link rel="stylesheet" href="lib/1/jquery-ui.css" />
+    <script src="lib/1/jquery-1.10.2.min.js"></script>
+    <script src="lib/1/jquery-ui.js"></script>
+    <script src="lib/1/jquery.ui.touch-punch.min.js"></script>
     <style>
         #shuffle { list-style-type: none; margin: 0; padding: 0; width: 450px; }
         #shuffle li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; }
@@ -49,6 +49,8 @@
                     shuffle.appendChild(e);
                 }
                 $("#shuffle").sortable({
+                    axis: 'x',
+                    containment: 'parent',
                     update: function(event, ui) {
                         // When the user sorts the letters, reflect the new order in the input element.
                         var liList = document.querySelectorAll('#shuffle li');
@@ -71,6 +73,6 @@
 <body>
 <input id="input" type="text" value=""/>
 <button id="doShuffle">Shuffle</button>
-<ul id="shuffle"></ul>
+<div><ul id="shuffle"></ul></div>
 </body>
 </html>
