@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Shuffle list</title>
+    <link rel="stylesheet" href="lib/1/jquery-ui.css" />
+    <script src="lib/1/jquery-1.10.2.min.js"></script>
+    <script src="lib/1/jquery-ui.js"></script>
+    <script>
+        function knuth_shuffle(arr) {
+            var n = arr.length,
+                    r,
+                    temp;
+            while (n > 1) {
+                r = Math.floor(n * Math.random());
+                n -= 1;
+                temp = arr[n];
+                arr[n] = arr[r];
+                arr[r] = temp;
+            }
+            return arr;
+        }
+
+        function addItemToList(newItemString) {
+            var items = document.querySelector('#items'),
+                newListItem = document.createElement('li');
+            if (newItemString && newItemString.trim().length > 0) {
+              newListItem.appendChild(document.createTextNode(newItemString));
+              items.appendChild(newListItem);
+            }
+            saveItemsToLocation();
+        }
+
+        function saveItemsToLocation() {
+            var items = document.querySelector('#items'),
+                itemStrings = Array(items.children.length);
+            for (var i = 0; i < items.children.length; i++) {
+              itemStrings[i] = items.children[i].innerHTML;
+            }
+            history.pushState(null, null, location.origin + location.pathname + '?items=' + itemStrings.join(','));
+        }
+
+        function loadItemsFromLocation() {
+            var matches = location.search.match(/[&?]?items=(.*)[&?]?$/);
+            if (matches) {
+              clearItems();
+              matches[1].split(',').forEach(function(item, i, arr) {
+                addItemToList(item);
+              });
+            }
+        }
+
+        function clearItems() {
+            var items = document.querySelector('#items');
+            while (items.firstChild) {
+              items.removeChild(items.firstChild);
+            }
+        }
+
+        $(function() {
+            window.addEventListener('popstate', loadItemsFromLocation);
+            loadItemsFromLocation();
+
+            document.querySelector("#addItem").onclick = function(event) {
+              var newItem = document.querySelector('newItem');
+              addItemToList(newItem);
+              newItem.value = '';
+            };
+
+            document.querySelector("#newItem").onkeyup = function(event) {
+              if (event.keyCode == 13) {
+                var newItem = document.querySelector('newItem');
+                addItemToList(newItem);
+                newItem.value = '';
+              }
+            };
+
+            document.querySelector("#shuffleItems").onclick = function(event) {
+              var items = document.querySelector('#items'),
+                  itemsArray = Array.prototype.slice.call(items.children),
+                  shuffledItemsArray = knuth_shuffle(itemsArray);
+
+              clearItems();
+              for (var i = 0; i < shuffledItemsArray.length; i++) {
+                items.appendChild(shuffledItemsArray[i]);
+              }
+              saveItemsToLocation();
+            };
+
+        });
+    </script>
+</head>
+<body>
+<input id="newItem" type="text" value=""/>
+<button id="addItem">Add</button>
+<button id="shuffleItems">Shuffle</button>
+<ul id="items"></ul>
+</body>
+</html>
