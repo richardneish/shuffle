@@ -62,14 +62,14 @@
             loadItemsFromLocation();
 
             document.querySelector("#addItem").onclick = function(event) {
-              var newItem = document.querySelector('newItem');
+              var newItem = document.querySelector('#newItem');
               addItemToList(newItem);
               newItem.value = '';
             };
 
             document.querySelector("#newItem").onkeyup = function(event) {
               if (event.keyCode == 13) {
-                var newItem = document.querySelector('newItem');
+                var newItem = document.querySelector('#newItem');
                 addItemToList(newItem);
                 newItem.value = '';
               }
