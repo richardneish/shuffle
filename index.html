@@ -1,4 +1,5 @@
 <!doctype html>
+<!--<html lang="en" manifest="offline.manifest">-->
 <html lang="en" manifest="offline.manifest">
 <head>
     <meta charset="utf-8" />
@@ -38,31 +39,49 @@
                // Update the shuffle tiles.
                 var s = event.target.value;
                 // Remove all current letters from the shuffle.
-                while (shuffle.firstChild) {
-                    shuffle.removeChild(shuffle.firstChild);
-                }
+                $(shuffle).empty()
 
                 // Add the letters of the current string.
                 for (var i = 0; i < s.length; i++) {
-                    var e = document.createElement("li");
-                    e.setAttribute("class", "ui-state-default");
-                    e.appendChild(document.createTextNode(s[i]));
-                    shuffle.appendChild(e);
+                  $('<li class="ui-state-default">' + s[i] + 
+                    ' <input type="checkbox" class="shuffle-lock"></li>').appendTo(shuffle);
                 }
+                $('.shuffle-lock').onclick = function(event) {
+                  $(event.target.parentNode()).toggleClass('shuffle-locked')
+                }
+
                 $("#shuffle").sortable({
-                    axis: 'x',
-                    containment: 'parent',
-                    placeholder: 'ui-state-highlight',
-                    items: "li:not(.ui-state-disabled)",
-                    update: function(event, ui) {
-                        // When the user sorts the letters, reflect the new order in the input element.
-                        var liList = document.querySelectorAll('#shuffle li');
-                        var newString = '';
-                        for (var i = 0; i < liList.length; ++i) {
-                            newString += liList[i].textContent;
-                        }
-                        input.value = newString;
+                  axis: 'x',
+                  containment: 'parent',
+                  placeholder: 'ui-state-highlight',
+                  items: ":not(.shuffle-locked)",
+                  start: function(){
+                    $(".shuffle-locked", this).each(function(){
+                      var $this = $(this);
+                      $this.data("pos", $this.index());
+                    });
+                  },
+                  change: function(){
+                    $sortable = $(this);
+                    $statics = $(".shuffle-locked", this).detach();
+                    $helper = $('<li></li>').prependTo(this);
+                    $statics.each(function(){
+                      var $this = $(this);
+                      var target = $this.data('pos');
+
+                      $this.insertAfter($('li', $sortable).eq(target));
+                    });
+                    $helper.remove();
+                  },
+                  update: function(event, ui) {
+                    // When the user sorts the letters, reflect the new order in the input element.
+                    var liList = document.querySelectorAll('#shuffle li');
+                    var newString = '';
+                    for (var i = 0; i < liList.length; ++i) {
+                      newString += liList[i].textContent;
                     }
+                    input.value = newString;
+                  }
                 });
                 $("#shuffle").disableSelection();
             };
@@ -75,7 +94,7 @@
 </head>
 <body>
 <input id="input" type="text" value=""/>
-<button id="doShuffle">Shuffle</button>
+<button id="doShuffle">Shuffle</button> 2142
 <div><ul id="shuffle"></ul></div>
 </body>
 </html>
