@@ -10,6 +10,7 @@
     <style>
         #shuffle { list-style-type: none; margin: 0; padding: 0; width: 450px; }
         #shuffle li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; }
+        #selected {}
     </style>
     <script>
         function knuth_shuffle(a) {
@@ -51,6 +52,8 @@
                 $("#shuffle").sortable({
                     axis: 'x',
                     containment: 'parent',
+                    placeholder: 'ui-state-highlight',
+                    items: "li:not(.ui-state-disabled)",
                     update: function(event, ui) {
                         // When the user sorts the letters, reflect the new order in the input element.
                         var liList = document.querySelectorAll('#shuffle li');
