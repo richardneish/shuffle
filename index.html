@@ -10,8 +10,38 @@
     <style>
         #shuffle { list-style-type: none; margin: 0; padding: 0; width: 450px; }
         #shuffle li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; }
+        #circleLayout { position: relative; }
+        .rotatedLetterHolder { position: absolute; width: 20px; top: 20px; transform-origin: bottom center; text-transform: capitalize; }
     </style>
     <script>
+        function doCircleLayout() {
+          var input = document.querySelector("#input");
+          var output = document.querySelector("#circleLayout");
+          var s = input.value;
+          // Remove all current letters from the shuffle.
+          while (output.firstChild) {
+            output.removeChild(output.firstChild);
+          }
+          // Add the letters of the current string.
+          var length = s.length;
+          var size = length * 15;
+          for (var i = 0; i < length; i++) {
+            var elementRotation = i * 360 / (length);
+            var holder = document.createElement("span");
+            var letter = document.createElement("p");
+            holder.setAttribute("class", "rotatedLetterHolder");
+            if (elementRotation != 0) {
+              holder.setAttribute("style", "transform: rotate(" + elementRotation + "deg);");
+              letter.setAttribute("style", "transform: rotate(-" + elementRotation + "deg);");
+            }
+            holder.style.height = size + "px";
+            holder.style.left = size + "px";
+            letter.appendChild(document.createTextNode(s[i]));
+            holder.appendChild(letter);
+            output.appendChild(holder);
+          }
+        }
+
         function knuth_shuffle(a) {
             var arr = new Array(a.length)
             for (var i = 0; i < a.length; i++) {
@@ -62,6 +92,8 @@
                     }
                 });
                 $("#shuffle").disableSelection();
+                
+                doCircleLayout();
             };
             document.querySelector("#doShuffle").onclick = function(event) {
                 input.value = knuth_shuffle(input.value);
@@ -74,5 +106,6 @@
 <input id="input" type="text" value=""/>
 <button id="doShuffle">Shuffle</button>
 <div><ul id="shuffle"></ul></div>
+<div id="circleLayout"/>
 </body>
 </html>
