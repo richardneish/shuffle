@@ -8,10 +8,11 @@
     <script src="lib/1/jquery-ui.js"></script>
     <script src="lib/1/jquery.ui.touch-punch.min.js"></script>
     <style>
-        #shuffle { list-style-type: none; margin: 0; padding: 0; width: 450px; text-transform: capitalize; }
-        #shuffle li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; }
-        #circleLayout { position: relative; top: 100px; text-transform: capitalize; }
-        .rotatedLetterHolder { position: absolute; width: 20px; top: 20px; transform-origin: bottom center; text-transform: capitalize; }
+        #shuffle { list-style-type: none; margin: 0 0 0 10px; padding: 0; text-transform: capitalize; }
+        .shuffleLetterHolder { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; border: 1px solid black;}
+        #circleLayout { position: relative; text-transform: capitalize; }
+        .circleLetterHolder { position: absolute; width: 20px; top: 20px; transform-origin: bottom center; text-transform: capitalize; }
+        .locked { color: red;}
     </style>
     <script>
         function doCircleLayout() {
@@ -29,7 +30,7 @@
             var elementRotation = i * 360 / (length);
             var holder = document.createElement("span");
             var letter = document.createElement("p");
-            holder.setAttribute("class", "rotatedLetterHolder");
+            holder.setAttribute("class", "circleLetterHolder");
             if (elementRotation != 0) {
               holder.setAttribute("style", "transform: rotate(" + elementRotation + "deg);");
               letter.setAttribute("style", "transform: rotate(-" + elementRotation + "deg);");
@@ -72,14 +73,13 @@
 
             // Add the letters of the current string.
             for (var i = 0; i < s.length; i++) {
-              $('<li class="ui-state-default drag">' + s[i] + 
-                ' <input type="checkbox" class="shuffle-lock"></li>').appendTo(shuffle);
+              $(makeShuffleLetterHolder(s[i])).appendTo(shuffle);
             }
-            $('.shuffle-lock').onclick = function(event) {
-              $(event.target).parents("li").toggleClass('locked');
-            }
+            $('.shuffleLetterHolder').dblclick(function(event) {
+              $(event.target).toggleClass('locked');
+            });
 
-            $('#sortable').sortable({
+            $('#shuffle').sortable({
               axis: 'x',
               containment: 'parent',
               items: ':not(.locked)',
@@ -92,7 +92,7 @@
               change: function(){
                 $sortable = $(this);
                 $statics = $('.locked', this).detach();
-                $helper = $('<li></li>').prependTo(this);
+                $helper = $(makeShuffleLetterHolder('')).prependTo(this);
                 $statics.each(function(){
                   var $this = $(this);
                   var target = $this.data('pos');
@@ -101,30 +101,13 @@
                 });
                 $helper.remove();
               }
-              $('#sortable').sortable({
-                items: ':not(.static)',
-                start: function(){
-                  $('.static', this).each(function(){
-                    var $this = $(this);
-                    $this.data('pos', $this.index());
-                  });
-                },
-                change: function(){
-                  $sortable = $(this);
-                  $statics = $('.static', this).detach();
-                  $helper = $('<li></li>').prependTo(this);
-                  $statics.each(function(){
-                    var $this = $(this);
-                    var target = $this.data('pos');
-
-                    $this.insertAfter($('li', $sortable).eq(target));
-                  });
-                  $helper.remove();
-                }
-              });
             });
 
             doCircleLayout();
+        }
+
+        function makeShuffleLetterHolder(c) {
+          return '<li class="shuffleLetterHolder">' + c + '</li>'
         }
 
         function doShuffle(event) {
