@@ -8,9 +8,9 @@
     <script src="lib/1/jquery-ui.js"></script>
     <script src="lib/1/jquery.ui.touch-punch.min.js"></script>
     <style>
-        #shuffle { list-style-type: none; margin: 0; padding: 0; width: 450px; }
+        #shuffle { list-style-type: none; margin: 0; padding: 0; width: 450px; text-transform: capitalize; }
         #shuffle li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; }
-        #circleLayout { position: relative; }
+        #circleLayout { position: relative; top: 100px; text-transform: capitalize; }
         .rotatedLetterHolder { position: absolute; width: 20px; top: 20px; transform-origin: bottom center; text-transform: capitalize; }
     </style>
     <script>
@@ -60,51 +60,83 @@
             return arr.join('');
         }
 
-        $(function() {
+        function update() {
             var input = document.querySelector("#input");
             var shuffle = document.querySelector("#shuffle");
-            input.onkeyup = function(event) {
-               // Update the shuffle tiles.
-                var s = event.target.value;
-                // Remove all current letters from the shuffle.
-                while (shuffle.firstChild) {
-                    shuffle.removeChild(shuffle.firstChild);
-                }
-
-                // Add the letters of the current string.
-                for (var i = 0; i < s.length; i++) {
-                    var e = document.createElement("li");
-                    e.setAttribute("class", "ui-state-default");
-                    e.appendChild(document.createTextNode(s[i]));
-                    shuffle.appendChild(e);
-                }
-                $("#shuffle").sortable({
-                    axis: 'x',
-                    containment: 'parent',
-                    update: function(event, ui) {
-                        // When the user sorts the letters, reflect the new order in the input element.
-                        var liList = document.querySelectorAll('#shuffle li');
-                        var newString = '';
-                        for (var i = 0; i < liList.length; ++i) {
-                            newString += liList[i].textContent;
-                        }
-                        input.value = newString;
-                    }
-                });
-                $("#shuffle").disableSelection();
-                
-                doCircleLayout();
-            };
-            document.querySelector("#doShuffle").onclick = function(event) {
-                input.value = knuth_shuffle(input.value);
-                input.onkeyup({target: input});
+            // Update the shuffle tiles.
+            var s = input.value;
+            // Remove all current letters from the shuffle.
+            while (shuffle.firstChild) {
+              shuffle.removeChild(shuffle.firstChild);
             }
-        });
+
+            // Add the letters of the current string.
+            for (var i = 0; i < s.length; i++) {
+              $('<li class="ui-state-default drag">' + s[i] + 
+                ' <input type="checkbox" class="shuffle-lock"></li>').appendTo(shuffle);
+            }
+            $('.shuffle-lock').onclick = function(event) {
+              $(event.target).parents("li").toggleClass('locked');
+            }
+
+            $('#sortable').sortable({
+              axis: 'x',
+              containment: 'parent',
+              items: ':not(.locked)',
+              start: function(){
+                $('.locked', this).each(function(){
+                  var $this = $(this);
+                  $this.data('pos', $this.index());
+                });
+              },
+              change: function(){
+                $sortable = $(this);
+                $statics = $('.locked', this).detach();
+                $helper = $('<li></li>').prependTo(this);
+                $statics.each(function(){
+                  var $this = $(this);
+                  var target = $this.data('pos');
+
+                  $this.insertAfter($('li', $sortable).eq(target));
+                });
+                $helper.remove();
+              }
+              $('#sortable').sortable({
+                items: ':not(.static)',
+                start: function(){
+                  $('.static', this).each(function(){
+                    var $this = $(this);
+                    $this.data('pos', $this.index());
+                  });
+                },
+                change: function(){
+                  $sortable = $(this);
+                  $statics = $('.static', this).detach();
+                  $helper = $('<li></li>').prependTo(this);
+                  $statics.each(function(){
+                    var $this = $(this);
+                    var target = $this.data('pos');
+
+                    $this.insertAfter($('li', $sortable).eq(target));
+                  });
+                  $helper.remove();
+                }
+              });
+            });
+
+            doCircleLayout();
+        }
+
+        function doShuffle(event) {
+          var input = document.querySelector("#input");
+          input.value = knuth_shuffle(input.value);
+          input.onkeyup({target: input});
+        }
     </script>
 </head>
 <body>
-<input id="input" type="text" value=""/>
-<button id="doShuffle">Shuffle</button>
+<input id="input" type="text" value="" onkeyup="update(); return false"/>
+<button id="doShuffle" onclick="doShuffle(); return false;">Shuffle</button>
 <div><ul id="shuffle"></ul></div>
 <div id="circleLayout"/>
 </body>
