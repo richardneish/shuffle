@@ -1,7 +1,4 @@
 CACHE MANIFEST
-# 2016-11-23 12:53
+# 2018-07-13 07:30
 index.html
-lib/1/jquery-1.10.2.min.js
-lib/1/jquery-ui.css
-lib/1/jquery-ui.js
-lib/1/jquery.ui.touch-punch.min.js
+lib/2/vue.min.js

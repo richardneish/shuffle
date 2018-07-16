@@ -3,10 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Shuffle letters</title>
-    <link rel="stylesheet" href="lib/1/jquery-ui.css" />
-    <script src="lib/1/jquery-1.10.2.min.js"></script>
-    <script src="lib/1/jquery-ui.js"></script>
-    <script src="lib/1/jquery.ui.touch-punch.min.js"></script>
+    <script src="lib/2/vue.js"></script>
     <style>
         #shuffle { list-style-type: none; margin: 0 0 0 10px; padding: 0; text-transform: capitalize; }
         .shuffleLetterHolder { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 20px; height: 20px; text-align: center; border: 1px solid black;}
@@ -15,33 +12,6 @@
         .locked { color: red;}
     </style>
     <script>
-        function doCircleLayout() {
-          var input = document.querySelector("#input");
-          var output = document.querySelector("#circleLayout");
-          var s = input.value;
-          // Remove all current letters from the shuffle.
-          while (output.firstChild) {
-            output.removeChild(output.firstChild);
-          }
-          // Add the letters of the current string.
-          var length = s.length;
-          var size = length * 15;
-          for (var i = 0; i < length; i++) {
-            var elementRotation = i * 360 / (length);
-            var holder = document.createElement("span");
-            var letter = document.createElement("p");
-            holder.setAttribute("class", "circleLetterHolder");
-            if (elementRotation != 0) {
-              holder.setAttribute("style", "transform: rotate(" + elementRotation + "deg);");
-              letter.setAttribute("style", "transform: rotate(-" + elementRotation + "deg);");
-            }
-            holder.style.height = size + "px";
-            holder.style.left = size + "px";
-            letter.appendChild(document.createTextNode(s[i]));
-            holder.appendChild(letter);
-            output.appendChild(holder);
-          }
-        }
 
         function knuth_shuffle(a) {
             var arr = new Array(a.length)
@@ -61,55 +31,6 @@
             return arr.join('');
         }
 
-        function update() {
-            var input = document.querySelector("#input");
-            var shuffle = document.querySelector("#shuffle");
-            // Update the shuffle tiles.
-            var s = input.value;
-            // Remove all current letters from the shuffle.
-            while (shuffle.firstChild) {
-              shuffle.removeChild(shuffle.firstChild);
-            }
-
-            // Add the letters of the current string.
-            for (var i = 0; i < s.length; i++) {
-              $(makeShuffleLetterHolder(s[i])).appendTo(shuffle);
-            }
-            $('.shuffleLetterHolder').dblclick(function(event) {
-              $(event.target).toggleClass('locked');
-            });
-
-            $('#shuffle').sortable({
-              axis: 'x',
-              containment: 'parent',
-              items: ':not(.locked)',
-              start: function(){
-                $('.locked', this).each(function(){
-                  var $this = $(this);
-                  $this.data('pos', $this.index());
-                });
-              },
-              change: function(){
-                $sortable = $(this);
-                $statics = $('.locked', this).detach();
-                $helper = $(makeShuffleLetterHolder('')).prependTo(this);
-                $statics.each(function(){
-                  var $this = $(this);
-                  var target = $this.data('pos');
-
-                  $this.insertAfter($('li', $sortable).eq(target));
-                });
-                $helper.remove();
-              }
-            });
-
-            doCircleLayout();
-        }
-
-        function makeShuffleLetterHolder(c) {
-          return '<li class="shuffleLetterHolder">' + c + '</li>'
-        }
-
         function doShuffle(event) {
           var input = document.querySelector("#input");
           input.value = knuth_shuffle(input.value);
@@ -118,9 +39,31 @@
     </script>
 </head>
 <body>
-<input id="input" type="text" value="" onkeyup="update(); return false"/>
-<button id="doShuffle" onclick="doShuffle(); return false;">Shuffle</button>
-<div><ul id="shuffle"></ul></div>
-<div id="circleLayout"/>
+<div id="app-shuffle">
+  <input v-model="letters"/><button>Shuffle</button>
+  <div v-bind:style="{ position:'absolute', color: 'red', fontSize: 30 + 'px' }">
+    <template v-for="(letter, index) in letters">
+      <span v-bind:style="{
+          font: '26px Monaco, MonoSpace',
+          height: '200px',
+          position: 'absolute',
+          width: '20px',
+          left: 100,
+          top: 100,
+          transformOrigin: 'bottom center',
+          transform: 'rotate(' + 360 * index / letters.length + 'deg)'
+          , border: 'solid red 1px'
+          }">{{letter}}</span>
+    </template>
+  </div>
+</div>
+<script>
+var shuffleApp = new Vue({
+  el: '#app-shuffle',
+  data: {
+    letters: ''
+  }
+})
+</script>
 </body>
 </html>
