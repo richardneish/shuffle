@@ -51,7 +51,12 @@
           font: '26px Monaco, MonoSpace',
           transformOrigin: 'bottom center',
           transform: 'rotate(' + 360 * index / letters.length + 'deg)'
-          }">{{letter}}</span>
+          }">
+        <span v-bind:style="{
+            position: 'absolute',
+            transform: 'rotate(' + (-360 * index / letters.length) + 'deg)'
+            }">{{letter}}</span>
+      </span>
     </template>
   </div>
 </div>
