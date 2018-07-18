@@ -41,18 +41,16 @@
 <body>
 <div id="app-shuffle">
   <input v-model="letters"/><button>Shuffle</button>
-  <div v-bind:style="{ position:'absolute', color: 'red', fontSize: 30 + 'px' }">
+  <div>
     <template v-for="(letter, index) in letters">
       <span v-bind:style="{
-          font: '26px Monaco, MonoSpace',
-          height: '200px',
           position: 'absolute',
+          left: 20 + (10 * letters.length) + 'px',
+          height: 20 + (10 * letters.length) + 'px',
           width: '20px',
-          left: 100,
-          top: 100,
+          font: '26px Monaco, MonoSpace',
           transformOrigin: 'bottom center',
           transform: 'rotate(' + 360 * index / letters.length + 'deg)'
-          , border: 'solid red 1px'
           }">{{letter}}</span>
     </template>
   </div>
